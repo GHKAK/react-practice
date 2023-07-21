@@ -1,6 +1,7 @@
 import { Link,NavLink } from 'react-router-dom'
 import '../../assets/css/style.css'
 import { useState } from 'react';
+import Avatar from './Avatar';
 export function Header() {
     const [isActiveBurger,setIsActiveBurger] = useState(false);
     const toggleNavBurger=()=>{
@@ -66,14 +67,7 @@ export function Header() {
                             </li>
                             <li>
                                 <a href="#" className="header-profile">
-                                    <figure className="profile-avatar">
-                                        <img
-                                            src="./assets/images/avatar-1.jpg"
-                                            alt="Elizabeth Foster"
-                                            width={32}
-                                            height={32}
-                                        />
-                                    </figure>
+                                    <Avatar size={32}/>
                                     <div>
                                         <p className="profile-title">Elizabeth F</p>
                                         <p className="profile-subtitle">Admin</p>

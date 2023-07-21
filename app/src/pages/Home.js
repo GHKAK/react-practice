@@ -1,110 +1,12 @@
+import HomeSubtitle from "../components/ui/HomeSubtitle";
+import ProfileCard from "../components/ui/ProfileCard";
+
 function Home(){
     return(<main>
         <article className="container article">
-          <h2 className="h2 article-title">Hi Elizabeth</h2>
-          <p className="article-subtitle">Welcome to Dashboard!</p>
-          {/* 
-        - #HOME
-      */}
+          <HomeSubtitle />
           <section className="home">
-            <div className="card profile-card">
-              <button
-                className="card-menu-btn icon-box"
-                aria-label="More"
-                data-menu-btn=""
-              >
-                <span className="material-symbols-rounded  icon">more_horiz</span>
-              </button>
-              <ul className="ctx-menu">
-                <li className="ctx-item">
-                  <button className="ctx-menu-btn icon-box">
-                    <span
-                      className="material-symbols-rounded  icon"
-                      aria-hidden="true"
-                    >
-                      edit
-                    </span>
-                    <span className="ctx-menu-text">Edit</span>
-                  </button>
-                </li>
-                <li className="ctx-item">
-                  <button className="ctx-menu-btn icon-box">
-                    <span
-                      className="material-symbols-rounded  icon"
-                      aria-hidden="true"
-                    >
-                      cached
-                    </span>
-                    <span className="ctx-menu-text">Refresh</span>
-                  </button>
-                </li>
-                <li className="divider" />
-                <li className="ctx-item">
-                  <button className="ctx-menu-btn red icon-box">
-                    <span
-                      className="material-symbols-rounded  icon"
-                      aria-hidden="true"
-                    >
-                      delete
-                    </span>
-                    <span className="ctx-menu-text">Deactivate</span>
-                  </button>
-                </li>
-              </ul>
-              <div className="profile-card-wrapper">
-                <figure className="card-avatar">
-                  <img
-                    src="./assets/images/avatar-1.jpg"
-                    alt="Elizabeth Foster"
-                    width={48}
-                    height={48}
-                  />
-                </figure>
-                <div>
-                  <p className="card-title">Elizabeth Foster</p>
-                  <p className="card-subtitle">Web &amp; Graphic Designer</p>
-                </div>
-              </div>
-              <ul className="contact-list">
-                <li>
-                  <a href="mailto:xyz@mail.com" className="contact-link icon-box">
-                    <span className="material-symbols-rounded  icon">mail</span>
-                    <p className="text">xyz@mail.com</p>
-                  </a>
-                </li>
-                <li>
-                  <a href="tel:00123456789" className="contact-link icon-box">
-                    <span className="material-symbols-rounded  icon">call</span>
-                    <p className="text">+00 123-456-789</p>
-                  </a>
-                </li>
-              </ul>
-              <div className="divider card-divider" />
-              <ul className="progress-list">
-                <li className="progress-item">
-                  <div className="progress-label">
-                    <p className="progress-title">Project Completion</p>
-                    <data className="progress-data" value={85}>
-                      85%
-                    </data>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress" />
-                  </div>
-                </li>
-                <li className="progress-item">
-                  <div className="progress-label">
-                    <p className="progress-title">Overall Rating</p>
-                    <data className="progress-data" value="7.5">
-                      7.5
-                    </data>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress" />
-                  </div>
-                </li>
-              </ul>
-            </div>
+            <ProfileCard />
             <div className="card-wrapper">
               <div className="card task-card">
                 <div className="card-icon icon-box green">
