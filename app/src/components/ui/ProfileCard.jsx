@@ -1,6 +1,6 @@
 import Avatar from "./Avatar";
 import CardDivider from "./CardDivider";
-import CardMenuButton from "./CardMenuButton";
+import ProfileCardButton from "./ProfileCardButton";
 import Contact from "./Contact";
 import ContactList from "./ContactList";
 import ProfileCardInfo from "./ProfileCardInfo";
@@ -9,7 +9,7 @@ import ProgressBar from "./ProgressBar";
 function ProfileCard() {
   return (
     <div className="card profile-card">
-      <CardMenuButton />
+      <ProfileCardButton />
       <div className="profile-card-wrapper">
         <Avatar size={48} />
         <ProfileCardInfo />
