@@ -1,5 +1,5 @@
 function LoadMoreButton(){
-    return(<button className="btn btn-primary" data-load-more="">
+    return(<button className="btn btn-primary sign-btn" data-load-more="">
     <span className="spiner" />
     <span>Load More</span>
   </button>)

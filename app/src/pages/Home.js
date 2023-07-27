@@ -2,7 +2,6 @@ import TasksCompletionsWrapper from "../components/ui/TasksCompletionsWrapper";
 import HomeSubtitle from "../components/ui/HomeSubtitle";
 import ProfileCard from "../components/ui/ProfileCard";
 import RevenueCard from "../components/ui/RevenueCard";
-import ViewAllButton from "../components/ui/ViewAllButton";
 import RecentProjects from "../components/ui/RecentProjects";
 import Tasks from "../components/ui/Tasks";
 
