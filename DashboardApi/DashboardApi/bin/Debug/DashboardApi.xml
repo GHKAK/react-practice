@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DashboardApi</name>
+    </assembly>
+    <members>
+        <member name="P:DashboardApi.Models.AuthInputModel.Username">
+            <summary>
+            Default example username.
+            </summary>
+            <example>admin</example>
+        </member>
+        <member name="P:DashboardApi.Models.AuthInputModel.Password">
+            <summary>
+            Default example password.
+            </summary>
+            <example>123</example>
+        </member>
+        <member name="P:DashboardApi.Models.ChangeInfoModel.Name">
+            <example>Elizabeth Foster</example>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:DashboardApi.Models.ChangeInfoModel.Position" -->
+        <member name="P:DashboardApi.Models.ChangeInfoModel.Email">
+            <example>xyz@mail.com</example>
+        </member>
+        <member name="P:DashboardApi.Models.ChangeInfoModel.PhoneNumber">
+            <example>+00 123-456-789</example>
+        </member>
+    </members>
+</doc>
