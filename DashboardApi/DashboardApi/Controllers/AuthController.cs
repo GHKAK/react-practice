@@ -22,13 +22,13 @@ public class AuthController : ControllerBase
     [HttpPost("signin")]
     public async Task<IActionResult> SignIn(AuthInputModel user)
     {
-        bool isUserExists = await _usersRepository.CheckUserAsync(user);
-        if (!isUserExists)
+        ObjectId userId = await _usersRepository.AuthUserAsync(user);
+        if (userId==null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var token = _jwtService.GenerateJwtToken(user.Username);
+        var token = _jwtService.GenerateJwtToken(userId);
         return Ok(new { token });
     }
 }

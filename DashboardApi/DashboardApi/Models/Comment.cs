@@ -5,6 +5,6 @@ namespace DashboardApi.Models;
 
 public class Comment
 {
-    public ObjectId _id;
-    [BsonElement("text")]public string Text;
+    [BsonId] public ObjectId Id;
+    [BsonElement("text")] public string Text;
 }

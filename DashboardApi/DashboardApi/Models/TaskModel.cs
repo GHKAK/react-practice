@@ -5,7 +5,11 @@ namespace DashboardApi.Models;
 
 public class TaskModel
 {
-    public ObjectId _id { get; set; }
+    public TaskModel()
+    {
+        Id = ObjectId.GenerateNewId();        
+    }
+    [BsonId] public ObjectId Id { get; set; }
     [BsonElement("isCompleted")] public bool IsCompleted { get; set; }
     [BsonElement("title")] public string Title { get; set; }
     [BsonElement("deadline")] public DateTime Deadline { get; set; }

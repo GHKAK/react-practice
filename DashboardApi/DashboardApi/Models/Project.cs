@@ -5,7 +5,7 @@ namespace DashboardApi.Models;
 
 public class Project
 {
-    public ObjectId _id;
+    [BsonId] public ObjectId Id;
     [BsonElement("startDate")] public DateTime StartDate { get; set; }
     [BsonElement("title")] public string Title { get; set; }
     [BsonElement("stage")] public string Stage { get; set; }

@@ -4,42 +4,39 @@ using System.Security.Cryptography;
 using System.Text;
 using DashboardApi.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 
 namespace DashboardApi.Services;
 
-public class JwtService : IJwtService {
-    private readonly RSAParameters publicKeyParameters;
-    private readonly RSAParameters privateKeyParameters;
+public class JwtService : IJwtService
+{
+    private readonly JwtHeader _jwtHeader;
 
-    public JwtService() {
-        using (var rsa = new RSACryptoServiceProvider(2048)) {
-            publicKeyParameters = rsa.ExportParameters(false);
-            privateKeyParameters = rsa.ExportParameters(true);
-        }
+    public JwtService(IConfiguration configuration)
+    {
+        var credentials = new SigningCredentials(
+            key: new SymmetricSecurityKey(Encoding.UTF32.GetBytes(configuration["Jwt:PrivateKey"])),
+            algorithm: SecurityAlgorithms.HmacSha256);
+        _jwtHeader = new JwtHeader(credentials);
     }
 
-    public RSAParameters GetPublicKey() {
-        return publicKeyParameters;
-    }
-
-    public RSAParameters GetPrivateKey() {
-        return privateKeyParameters;
-    }
-    public string GenerateJwtToken(string username) {
-        var securityKey = new RsaSecurityKey(privateKeyParameters);
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
-
-        var claims = new[] {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
+    public string GenerateJwtToken(ObjectId userId)
+    {
+        var jwtClaims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         var token = new JwtSecurityToken(
-            issuer: "https://localhost:7178",
-            audience: "https://localhost:7178/resources",
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: credentials
+            _jwtHeader,
+            new JwtPayload(
+                audience: "identity",
+                issuer: "identity",
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddHours(1),
+                claims: jwtClaims
+            )
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);

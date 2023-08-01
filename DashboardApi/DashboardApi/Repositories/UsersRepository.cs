@@ -1,5 +1,7 @@
-﻿using DashboardApi.Models;
+﻿using System.Collections.Immutable;
+using DashboardApi.Models;
 using DashboardApi.Repositories.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace DashboardApi.Repositories;
@@ -13,64 +15,124 @@ public class UsersRepository : IUsersRepository
         _userContext = userContext;
     }
 
-    public Task AddUser(User user)
+    public async Task<bool> CreateUserAsync(User user)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Username, user.Username);
+        var isNameTaken = await _userContext.Users.Find(filter).AnyAsync();
+        if (isNameTaken)
+        {
+            return false;
+        }
+
+        await _userContext.Users.InsertOneAsync(user);
+        return true;
     }
 
-    public Task DeleteUser(User user)
+    public async Task<bool> DeleteUserAsync(ObjectId userId)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var deleteResult = await _userContext.Users.DeleteOneAsync(filter);
+        return deleteResult.DeletedCount > 0;
     }
 
-    public Task UpdateUser(ChangeInfoModel model)
+    public async Task<bool> UpdateUserAsync(ObjectId userId, ChangeInfoModel model)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var update = Builders<User>.Update
+            .Set(u => u.Name, model.Name)
+            .Set(u => u.Position, model.Position)
+            .Set(u => u.EMail, model.Email)
+            .Set(u => u.PhoneNumber, model.PhoneNumber);
+        var updateResult = await _userContext.Users.UpdateOneAsync(filter, update);
+        return updateResult.MatchedCount > 0;
     }
 
-    public Task<User> GetUser(string username)
+    public async Task<User> GetUser(ObjectId userId)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var user = await _userContext.Users.Find(filter).FirstAsync();
+        return user;
     }
 
-    public async Task<bool> CheckUserAsync(AuthInputModel user)
+    public async Task<ObjectId> AuthUserAsync(AuthInputModel user)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Username, user.Username) &
                      Builders<User>.Filter.Eq(u => u.Password, user.Password);
-        return await _userContext.Users.Find(filter).AnyAsync();
+        var userDocument = await _userContext.Users.Find(filter).FirstOrDefaultAsync();
+        return userDocument.Id;
     }
 
-    public Task UploadAvatar()
+    public Task UploadAvatar(ObjectId userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task DownloadAvatar(string username)
+    public Task DownloadAvatar(ObjectId userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task ChangePersonalInfo(ChangeInfoModel model)
+    public Task ChangePassword(ObjectId userId, string oldPassword, string newPassword)
     {
         throw new NotImplementedException();
     }
 
-    public Task ChangePassword(string oldPassword, string newPassword)
+    public Task CreateRevenue(ObjectId userId, Revenue revenue)
     {
         throw new NotImplementedException();
     }
 
-    public Task AddRevenue(Revenue revenue)
+    public async Task<bool> UpdateRevenue(ObjectId userId, RevenueDTO revenue)
+    {
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Revenues, r => r.Id == ObjectId.Parse(revenue.Id)));
+        var update = Builders<User>.Update
+            .Set(u => u.Revenues[0].Amount, revenue.Amount)
+            .Set(u => u.Revenues[0].Week, revenue.Week);
+        var updateResult = await _userContext.Users.UpdateOneAsync(filter, update);
+        return updateResult.MatchedCount > 0;
+    }
+
+    public Task<List<Revenue>> GetRevenues(ObjectId userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task ChangeRevenue(Revenue revenue)
+    public async Task<bool> CreateTask(ObjectId userId, TaskModel task)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var update = Builders<User>.Update.Push(u => u.Tasks, task);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
+    }
+
+    public Task<List<TaskModel>> GetTasks()
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<Revenue>> GetRevenues()
+    public Task SetTaskState(ObjectId taskId, bool state)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task CreateProject(Project project)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateProject(Project project)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteProject(ObjectId projectId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task GetProject(ObjectId projectId)
     {
         throw new NotImplementedException();
     }

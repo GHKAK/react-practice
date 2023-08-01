@@ -1,6 +1,10 @@
-﻿using DashboardApi.Repositories.Interfaces;
+﻿using System.Security.Claims;
+using DashboardApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using DashboardApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using MongoDB.Bson;
+
 namespace DashboardApi.Controllers;
 
 [Route("api/[controller]")]
@@ -14,43 +18,77 @@ public class UsersController : ControllerBase
         _usersRepository = usersRepository;
     }
 
-    
+
     [HttpPost("signup")]
     public async Task<IActionResult> CreateUser(User user)
     {
-        try
+        var isNameFree = await _usersRepository.CreateUserAsync(user);
+        if (!isNameFree)
         {
-            _usersRepository.AddUser(user);
-        }
-        catch
-        {
-            return BadRequest(); //UnprocessableEntity()
+            return BadRequest("username is already taken");
         }
 
         return Ok();
     }
 
-    [HttpDelete("{username}")]
-    public async Task<IActionResult> DeleteUser(string username)
+    [HttpDelete("user")]
+    [Authorize]
+    public async Task<IActionResult> DeleteUser()
     {
-        throw new NotImplementedException();
+        ObjectId userId = GetUserId(User);
+        var isDeleted = await _usersRepository.DeleteUserAsync(userId);
+        if (!isDeleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 
     [HttpPatch("edit")]
+    [Authorize]
     public async Task<IActionResult> UpdateUserInfo(ChangeInfoModel userInfo)
     {
-        throw new NotImplementedException();
+        ObjectId userId = GetUserId(User);
+        var isUpdated = await _usersRepository.UpdateUserAsync(userId, userInfo);
+        if (!isUpdated)
+        {
+            return NotFound();
+        }
+        return Ok("Updated successfully");
     }
 
     [HttpPut("revenue")]
-    public async Task<IActionResult> UpdateRevenue(Revenue revenue)
+    [Authorize]
+    public async Task<IActionResult> UpdateRevenue([FromBody]RevenueDTO revenue)
     {
-        throw new NotImplementedException();
+        ObjectId userId = GetUserId(User); 
+        var isUpdated = await _usersRepository.UpdateRevenue(userId, revenue);
+        if (!isUpdated)
+        {
+            return NotFound();
+        }
+        return Ok("Updated successfully");
     }
 
-    [HttpGet("{username}")]
-    public async Task<IActionResult> GetUser(string username)
+    [HttpGet("user")]
+    [Authorize]
+    public async Task<IActionResult> GetUser()
     {
-        throw new NotImplementedException();
+        ObjectId userId = GetUserId(User);
+        try
+        {
+            var foundUser = await _usersRepository.GetUser(userId);
+            return Ok(foundUser);
+        }
+        catch
+        {
+            return NotFound();
+        }
+    }
+
+    public static ObjectId GetUserId(ClaimsPrincipal user)
+    {
+        return ObjectId.Parse(user.Claims.First()?.Value);
     }
 }

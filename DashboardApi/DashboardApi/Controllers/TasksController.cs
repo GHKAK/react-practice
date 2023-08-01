@@ -1,5 +1,6 @@
 ﻿using DashboardApi.Models;
 using DashboardApi.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
@@ -8,21 +9,29 @@ namespace DashboardApi.Controllers;
 [ApiController]
 public class TasksController : ControllerBase
 {
-    private readonly ITasksRepository _tasksRepository;
+    private readonly IUsersRepository _usersRepository;
 
-    public TasksController(ITasksRepository tasksRepository)
+    public TasksController(IUsersRepository usersRepository)
     {
-        _tasksRepository = tasksRepository;
+        _usersRepository = usersRepository;
     }
 
     [HttpPost("create")]
+    [Authorize]
     public async Task<IActionResult> CreateTask(TaskModel task)
     {
-        throw new NotImplementedException();
+        ObjectId userId = UsersController.GetUserId(User);
+        var isCreated = await _usersRepository.CreateTask(userId, task);
+        if (!isCreated)
+        {
+            return BadRequest();
+        }
+
+        return Ok();
     }
 
     [HttpPatch("{task_id}/state")]
-    public async Task<IActionResult> UpdateState(ObjectId task_id)
+    public async Task<IActionResult> UpdateState(string task_id)
     {
         throw new NotImplementedException();
     }

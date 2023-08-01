@@ -1,9 +1,8 @@
 ﻿using System.Security.Cryptography;
+using MongoDB.Bson;
 
 namespace DashboardApi.Services.Interfaces; 
 
 public interface IJwtService {
-    RSAParameters GetPublicKey();
-    RSAParameters GetPrivateKey();
-    string GenerateJwtToken(string username);
+    string GenerateJwtToken(ObjectId userId);
 }

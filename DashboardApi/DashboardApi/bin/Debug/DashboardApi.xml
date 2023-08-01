@@ -26,5 +26,20 @@
         <member name="P:DashboardApi.Models.ChangeInfoModel.PhoneNumber">
             <example>+00 123-456-789</example>
         </member>
+        <member name="P:DashboardApi.Models.Revenue.Id">
+            <summary>
+            The unique identifier for the revenue entry.
+            </summary>
+        </member>
+        <member name="P:DashboardApi.Models.Revenue.Amount">
+            <summary>
+            The amount of revenue.
+            </summary>
+        </member>
+        <member name="P:DashboardApi.Models.Revenue.Week">
+            <summary>
+            The week of the revenue.
+            </summary>
+        </member>
     </members>
 </doc>
