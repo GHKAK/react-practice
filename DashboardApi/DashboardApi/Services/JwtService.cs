@@ -11,9 +11,11 @@ namespace DashboardApi.Services;
 public class JwtService : IJwtService
 {
     private readonly JwtHeader _jwtHeader;
+    private readonly IConfiguration _configuration;
 
     public JwtService(IConfiguration configuration)
     {
+        _configuration = configuration;
         var credentials = new SigningCredentials(
             key: new SymmetricSecurityKey(Encoding.UTF32.GetBytes(configuration["Jwt:PrivateKey"])),
             algorithm: SecurityAlgorithms.HmacSha256);
@@ -40,5 +42,25 @@ public class JwtService : IJwtService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public void ValidateToken(string token)
+    {
+        string secretKey = _configuration["Jwt:PrivateKey"];
+        string issuer = _configuration["Jwt:Issuer"];
+        string audience = _configuration["Jwt:Audience"];
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(secretKey)),
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+        };
+        SecurityToken validatedToken;
+        var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
     }
 }
