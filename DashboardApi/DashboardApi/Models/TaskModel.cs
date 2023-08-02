@@ -9,7 +9,8 @@ public class TaskModel
     {
         Id = ObjectId.GenerateNewId();        
     }
-    [BsonId] public ObjectId Id { get; set; }
+
+    [BsonId] public ObjectId Id;
     [BsonElement("isCompleted")] public bool IsCompleted { get; set; }
     [BsonElement("title")] public string Title { get; set; }
     [BsonElement("deadline")] public DateTime Deadline { get; set; }

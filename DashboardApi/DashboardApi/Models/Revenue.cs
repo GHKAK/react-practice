@@ -5,10 +5,16 @@ namespace DashboardApi.Models;
 
 public class Revenue
 {
+    public Revenue()
+    {
+        Id = ObjectId.GenerateNewId();        
+    }
+
     /// <summary>
     /// The unique identifier for the revenue entry.
     /// </summary>
-    [BsonId] public ObjectId Id { get; set; }
+    [BsonId] public ObjectId Id;
+
     /// <summary>
     /// The amount of revenue.
     /// </summary>

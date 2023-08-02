@@ -1,7 +1,7 @@
-﻿using System.Collections.Immutable;
-using DashboardApi.Models;
+﻿using DashboardApi.Models;
 using DashboardApi.Repositories.Interfaces;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace DashboardApi.Repositories;
@@ -47,7 +47,7 @@ public class UsersRepository : IUsersRepository
         return updateResult.MatchedCount > 0;
     }
 
-    public async Task<User> GetUser(ObjectId userId)
+    public async Task<User> GetUserAsync(ObjectId userId)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
         var user = await _userContext.Users.Find(filter).FirstAsync();
@@ -77,16 +77,19 @@ public class UsersRepository : IUsersRepository
         throw new NotImplementedException();
     }
 
-    public Task CreateRevenue(ObjectId userId, Revenue revenue)
+    public async Task<bool> CreateRevenue(ObjectId userId, Revenue revenue)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var update = Builders<User>.Update.Push(u => u.Revenues, revenue);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
     }
 
-    public async Task<bool> UpdateRevenue(ObjectId userId, RevenueDTO revenue)
+    public async Task<bool> UpdateRevenueAsync(ObjectId userId, Revenue revenue)
     {
         var filter = Builders<User>.Filter.And(
             Builders<User>.Filter.Eq(u => u.Id, userId),
-            Builders<User>.Filter.ElemMatch(u => u.Revenues, r => r.Id == ObjectId.Parse(revenue.Id)));
+            Builders<User>.Filter.ElemMatch(u => u.Revenues, r => r.Id == revenue.Id));
         var update = Builders<User>.Update
             .Set(u => u.Revenues[0].Amount, revenue.Amount)
             .Set(u => u.Revenues[0].Week, revenue.Week);
@@ -94,12 +97,20 @@ public class UsersRepository : IUsersRepository
         return updateResult.MatchedCount > 0;
     }
 
-    public Task<List<Revenue>> GetRevenues(ObjectId userId)
+    public async Task<List<Revenue>> GetRevenuesAsync(ObjectId userId)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var projection = Builders<User>.Projection.Expression(u => u.Revenues);
+        var result = await _userContext.Users.Find(filter).Project(projection).FirstOrDefaultAsync();
+        return result;
+    }
+
+    public Task GetRevenueByIdAsync(ObjectId projectId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> CreateTask(ObjectId userId, TaskModel task)
+    public async Task<bool> CreateTaskAsync(ObjectId userId, TaskModel task)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
         var update = Builders<User>.Update.Push(u => u.Tasks, task);
@@ -112,28 +123,62 @@ public class UsersRepository : IUsersRepository
         throw new NotImplementedException();
     }
 
-    public Task SetTaskState(ObjectId taskId, bool state)
+    public async Task<TaskModel> GetTaskByIdAsync(ObjectId userId, ObjectId taskId)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Tasks, t => t.Id == taskId));
+        var projection = Builders<User>.Projection.Expression(u => u.Tasks[0]);
+
+        var task = await _userContext.Users.Find(filter).Project(projection).FirstOrDefaultAsync();
+        return task;
     }
 
-    public Task CreateProject(Project project)
+    public async Task<bool> SetTaskStateAsync(ObjectId userId, ObjectId taskId, bool completed)
     {
-        throw new NotImplementedException();
+        var filter =  Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Tasks, r => r.Id == taskId));
+        var update = Builders<User>.Update.Set(u => u.Tasks[0].IsCompleted, completed);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
     }
 
-    public Task UpdateProject(Project project)
+
+    public async Task<bool> CreateProjectAsync(ObjectId userId, Project project)
     {
-        throw new NotImplementedException();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, userId);
+        var update = Builders<User>.Update.Push(u => u.Projects, project);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
     }
 
-    public Task DeleteProject(ObjectId projectId)
+    public async Task<bool> UpdateProjectAsync(ObjectId userId, Project project)
     {
-        throw new NotImplementedException();
-    }
+        var filter =  Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Projects, r => r.Id == project.Id));
+        var update = Builders<User>.Update.Set(u => u.Projects[0], project);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;    }
 
-    public Task GetProject(ObjectId projectId)
+    public async Task<bool> DeleteProjectAsync(ObjectId userId, ObjectId projectId)
     {
-        throw new NotImplementedException();
+        var filter =  Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Projects, r => r.Id == projectId));
+        var update = Builders<User>.Update.PullFilter(u => u.Projects, p=>p.Id==projectId);
+        var result = await _userContext.Users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
+    }
+    public async Task<Project> GetProjectByIdAsync(ObjectId userId, ObjectId projectId)
+    {
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(u => u.Projects, p => p.Id == projectId));
+        var projection = Builders<User>.Projection.Expression(u => u.Projects[0]);
+
+        var project = await _userContext.Users.Find(filter).Project(projection).FirstOrDefaultAsync();
+        return project;
     }
 }

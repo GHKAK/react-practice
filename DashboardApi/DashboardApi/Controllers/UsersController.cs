@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using DashboardApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using DashboardApi.Models;
@@ -12,10 +13,12 @@ namespace DashboardApi.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersRepository _usersRepository;
+    private readonly IMapper _mapper;
 
-    public UsersController(IUsersRepository usersRepository)
+    public UsersController(IUsersRepository usersRepository, IMapper mapper)
     {
         _usersRepository = usersRepository;
+        _mapper = mapper;
     }
 
 
@@ -55,19 +58,51 @@ public class UsersController : ControllerBase
         {
             return NotFound();
         }
+
         return Ok("Updated successfully");
+    }
+
+    [HttpGet("revenues")]
+    [Authorize]
+    public async Task<IActionResult> GetRevenues()
+    {
+        ObjectId userId = GetUserId(User);
+        var revenuesList = await _usersRepository.GetRevenuesAsync(userId);
+        if (revenuesList == null)
+        {
+            return NotFound();
+        }
+
+        var revenuesDtoList = _mapper.Map<List<RevenueDTO>>(revenuesList);
+        return Ok(revenuesDtoList);
+    }
+
+    [HttpPost("revenue")]
+    [Authorize]
+    public async Task<IActionResult> CreateRevenue(Revenue revenue)
+    {
+        ObjectId userId = UsersController.GetUserId(User);
+        var isCreated = await _usersRepository.CreateRevenue(userId, revenue);
+        if (!isCreated)
+        {
+            return BadRequest();
+        }
+
+        return Ok();
     }
 
     [HttpPut("revenue")]
     [Authorize]
-    public async Task<IActionResult> UpdateRevenue([FromBody]RevenueDTO revenue)
+    public async Task<IActionResult> UpdateRevenue([FromBody] RevenueDTO revenueDto)
     {
-        ObjectId userId = GetUserId(User); 
-        var isUpdated = await _usersRepository.UpdateRevenue(userId, revenue);
+        ObjectId userId = GetUserId(User);
+        var revenue = _mapper.Map<Revenue>(revenueDto);
+        var isUpdated = await _usersRepository.UpdateRevenueAsync(userId, revenue);
         if (!isUpdated)
         {
             return NotFound();
         }
+
         return Ok("Updated successfully");
     }
 
@@ -76,15 +111,15 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUser()
     {
         ObjectId userId = GetUserId(User);
-        try
-        {
-            var foundUser = await _usersRepository.GetUser(userId);
-            return Ok(foundUser);
-        }
-        catch
+
+        var foundUser = await _usersRepository.GetUserAsync(userId);
+        if (foundUser == null)
         {
             return NotFound();
         }
+
+        var userDto = _mapper.Map<UserDTO>(foundUser);
+        return Ok(userDto);
     }
 
     public static ObjectId GetUserId(ClaimsPrincipal user)

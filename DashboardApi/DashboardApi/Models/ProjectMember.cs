@@ -3,12 +3,13 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DashboardApi.Models;
 
-public class Comment
+public class ProjectMember
 {
-    public Comment()
+    public ProjectMember()
     {
         Id = ObjectId.GenerateNewId();        
     }
+
     [BsonId] public ObjectId Id;
-    [BsonElement("text")] public string Text;
+    [BsonElement("username")] public string Username { get; set; }
 }

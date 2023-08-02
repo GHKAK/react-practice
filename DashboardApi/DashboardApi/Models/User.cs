@@ -6,6 +6,11 @@ namespace DashboardApi.Models;
 
 public class User
 {
+    public User()
+    {
+        Id = ObjectId.GenerateNewId();        
+    }
+
     [BsonId] public ObjectId Id;
     [BsonElement("username")] public string Username { get; set; }
 

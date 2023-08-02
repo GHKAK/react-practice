@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using DashboardApi.Automapper;
 using DashboardApi.Repositories;
 using DashboardApi.Repositories.Interfaces;
 using DashboardApi.Services;
@@ -46,6 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     ValidateIssuer = true,
                 };
         });
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
